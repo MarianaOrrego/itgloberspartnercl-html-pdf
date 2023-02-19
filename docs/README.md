@@ -1,97 +1,171 @@
-📢 Use this project, [contribute](https://github.com/{OrganizationName}/{AppName}) to it or open issues to help evolve it using [Store Discussion](https://github.com/vtex-apps/store-discussion).
+# PDF READER
 
-# APP NAME
 
 <!-- DOCS-IGNORE:start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- DOCS-IGNORE:end -->
 
-Under the app's name, you should explain the topic, giving a **brief description** of its **functionality** in a store when installed.
+Lector de PDF embebido en la pagina, el cual permite mostrar información relevante de manera comoda. 
 
-Next, **add media** (either an image of a GIF) with the rendered components, so that users can better understand how the app works in practice. 
+![image](https://user-images.githubusercontent.com/83648336/219948437-42670b7d-d2e1-4519-98a1-7e9d103786a4.png)
 
-![Media Placeholder](https://user-images.githubusercontent.com/52087100/71204177-42ca4f80-227e-11ea-89e6-e92e65370c69.png)
+## Configuración
 
-## Configuration 
+1. Usar el template [vtex-app](https://github.com/vtex-apps/react-app-template)
+2. Modificar el `manifest.json`
+     ```json 
+        {
+          "vendor": "itgloberspartnercl",
+          "name": "pdf-reader",
+          "version": "0.0.1",
+          "title": "Lector de PDF",
+          "description": "Lector de PDF que permite mostrar PDFs nativos en VTEX IO",
+        }
+     ``` 
+      **vendor:** nombre del cliente o información suministrada por él
 
-In this section, you first must **add the primary instructions** that will allow users to use the app's blocks in their store, such as:
+      **name:** nombre del componente
 
-1. Adding the app as a theme dependency in the `manifest.json` file;
-2. Declaring the app's main block in a given theme template or inside another block from the theme.
+      **version:** versión del componente
 
-Remember to add a table with all blocks exported by the app and their descriptions. You can verify an example of it on the [Search Result documentation](https://vtex.io/docs/components/all/vtex.search-result@3.56.1/). 
+      **title:** titulo asigando al componente
 
-Next, add the **props table** containing your block's props. 
-
-If the app exports more than one block, create several tables - one for each block. For example:
-
-### `block-1` props
-
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
+      **description:** breve descripción del componente
 
 
-### `block-2` props
+   Agregar en la sección `builders` dentro del `manifest.json` un `store`
 
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
+    ```json   
+        "store" : "0.x"
+    ```
+   En `dependencies` para este componente no se requiere nada, por ende, queda vacío 
 
-Prop types are: 
+    ```json   
+        "dependencies": {}
+    ```  
+3. En el template se tienen dos `package.json` en ambos se debe modificar la `version` y el `name` 
+   ```json 
+        "version": "0.0.1",
+        "name": "pdf-reader"
+   ```  
+4. Agregar a la carpeta raíz una carpeta llamada `store`, dentro crear un file llamado `interfaces.json`, en este file se tendrá la siguiente configuración:
+    ```json 
+        {
+          "pdf-reader": {
+            "component": "PdfReader",
+            "render": "client"
+          }
+        }
+    ```
+      Se especifica el nombre del componente con el cual será llamado en el `store-theme` de la tienda que se esta realizando, dentro se encuentra el `component` (se debe poner el nombre del componente React a realizar) y por ultimo el `render` donde se especifica que su renderización será solo en la parte del *cliente* 
 
-- `string` 
-- `enum` 
+5. Finalizado los puntos anteriores, se procede a ingresar a la carpeta `react` en la cual se realizan las siguientes configuraciones: 
+    
+    5.1. Ejecutar el comando `yarn install` para preparar las dependencias
+    
+    5.2. Crear el functional component `PdfReader.tsx` con la siguiente configuración 
+    
+    ```typescript
+          import PdfReader from './components/PdfReader'
+
+          export default PdfReader;
+    ```   
+    5.3. Crear una carpeta llamada `components`, dentro se tiene el functional component `PdfReader` con la configuración necesaria para el funcionamiento del componente, se tienen las importaciones empleadas y el desarrollo delc componente
+    ```typescript
+          import React, { useEffect, useState } from 'react'
+
+          type Props = {
+              pdfUrl: string,
+              width: number,
+              height: number
+          }
+
+          const PdfReader = ({ pdfUrl, width, height }: Props) => {
+
+              const [mounted, setMounted] = useState(false)
+
+              useEffect(() => {
+                  setMounted(true)
+              }, [])
+
+              return (
+                  mounted && (
+                      <div className='flex justify-center'>
+                          <object
+                              data={pdfUrl}
+                              type="aplication/pdf"
+                              width={width}
+                              height={height}
+                          >
+                              <iframe
+                                  title="PDF"
+                                  src={pdfUrl}
+                                  width={width}
+                                  height={height}
+                              >
+                                  <p>Este navegador no soporta PDF</p>
+                              </iframe>
+                          </object>
+                      </div>
+                  )
+              )
+          }
+
+          export default PdfReader
+    ```
+
+6. Linkear el componente custom al `store-theme` de la tienda base
+
+    6.1. Iniciar sesión 
+    ```console
+       vtex login <vendor>
+    ```
+
+    6.2. Elegir el `workspace` en el cual se esta trabajando
+    ```console
+       vtex use <nombre_worksapce>
+    ```
+
+    6.3. Linkear el componente
+    ```console
+       vtex link
+    ```
+
+    6.4. Verificar que el componente quede linkeado, para eso se emplea el siguiente comando
+
+     ```console
+        vtex ls
+     ```
+
+    En consola debe verse las aplicaciones linkeadas al proyecto, verificando de esta forma que el componente quedo listo para emplearse:
+
+    ```console
+        Linked Apps in <vendor> at workspace <nombre_store_theme>
+        itgloberspartnercl.pdf-reader                   0.0.1
+     ```
+      
+7. Hacer el llamado del componente desde el `store theme`
+
+## Propiedades
+
+### `Props` 
+
+| Nombre Prop  | Tipo           | Descripción    |
+| ------------ | ---------------| -----------------------------------------------------------------------------------------------------------------------------------|
+| `pdfUrl`     | `string`       | Propiedad a la cual se le pasará la URL del PDF a mostrar desde el `store theme` | 
+| `width`      | `number`       | Propiedad que hace referencia al ancho que tendrá el lector del PDF, se da la propiedad desde el `store theme` | 
+| `height`     | `number`       | Propiedad que hace referencia al alto que tendrá el lector del PDF, se da la propiedad desde el `store theme` | 
+
+Tipos de Prop empleadas: 
+
+- `string`  
 - `number` 
-- `boolean` 
-- `object` 
-- `array` 
-
-When documenting a prop whose type is `object` or `array` another prop table will be needed. You can create it following the example below:
-
-- `propName` object:
-
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
-
-
-Remember to also use this Configuration section to  **showcase any necessary disclaimer** related to the app and its blocks, such as the different behavior it may display during its configuration. 
-
-## Modus Operandi *(not mandatory)*
-
-There are scenarios in which an app can behave differently in a store, according to how it was added to the catalog, for example. It's crucial to go through these **behavioral changes** in this section, allowing users to fully understand the **practical application** of the app in their store.
-
-If you feel compelled to give further details about the app, such as it's **relationship with the VTEX admin**, don't hesitate to use this section. 
-
-## Customization
-
-The first thing that should be present in this section is the sentence below, showing users the recipe pertaining to CSS customization in apps:
-
-`In order to apply CSS customizations in this and other blocks, follow the instructions given in the recipe on [Using CSS Handles for store customization](https://vtex.io/docs/recipes/style/using-css-handles-for-store-customization).`
-
-Thereafter, you should add a single column table with the available CSS handles for the app, like the one below. Note that the Handles must be ordered alphabetically.
-
-| CSS Handles |
-| ----------- | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` |
-
-
-If there are none, add the following sentence instead:
-
-`No CSS Handles are available yet for the app customization.`
 
 <!-- DOCS-IGNORE:start -->
 
-## Contributors ✨
-
-Thanks goes to these wonderful people:
+## Colaboradores ✨
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -100,15 +174,6 @@ Thanks goes to these wonderful people:
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
+Mariana Orrego Franco
 
 <!-- DOCS-IGNORE:end -->
-
----- 
-
-Check out some documentation models that are already live: 
-- [Breadcrumb](https://github.com/vtex-apps/breadcrumb)
-- [Image](https://vtex.io/docs/components/general/vtex.store-components/image)
-- [Condition Layout](https://vtex.io/docs/components/all/vtex.condition-layout@1.1.6/)
-- [Add To Cart Button](https://vtex.io/docs/components/content-blocks/vtex.add-to-cart-button@0.9.0/)
-- [Store Form](https://vtex.io/docs/components/all/vtex.store-form@0.3.4/)
